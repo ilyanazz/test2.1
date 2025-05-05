@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>QR Points Admin</title>
+  <script src="https://unpkg.com/html5-qrcode"></script>
+  <script type="module" src="firebase.js"></script>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    #leaderboard div { margin-bottom: 5px; }
+    input { margin: 5px; }
+  </style>
+</head>
+<body>
+  <h2>QR Scanner (Admin)</h2>
+  <div id="qr-reader" style="width:300px;"></div>
+  <p>Scanned ID: <span id="scanned-id"></span></p>
+  <p>Name: <span id="participant-name"></span></p>
+  <p>Current Points: <span id="current-points">0</span></p>
+  <input type="number" id="points-change" placeholder="Points to Add/Deduct" />
+  <button onclick="updatePoints(true)">Add</button>
+  <button onclick="updatePoints(false)">Deduct</button>
+
+  <h2>Leaderboard</h2>
+  <div id="leaderboard"></div>
+
+  <script type="module">
+    import {
+      db, doc, getDoc, updateDoc, onSnapshot, collection, query, orderBy
+    } from './firebase.js';
+
+    let currentId = null;
+    const idSpan = document.getElementById('scanned-id');
+    const nameSpan = document.getElementById('participant-name');
+    const pointsSpan = document.getElementById('current-points');
+
+    const qrScanner = new Html5Qrcode("qr-reader");
+    qrScanner.start(
+      { facingMode: "environment" },
+      { fps: 10, qrbox: 200 },
+      async (decodedText) => {
+        currentId = decodedText;
+        idSpan.textContent = decodedText;
+        const docRef = doc(db, "participants", currentId);
+        const snap = await getDoc(docRef);
+        if (snap.exists()) {
+          const data = snap.data();
+          nameSpan.textContent = data.name || "Unnamed";
+          pointsSpan.textContent = data.points || 0;
+        } else {
+          nameSpan.textContent = "Not found";
+          pointsSpan.textContent = "0";
+        }
+      },
+      (err) => { console.log(err); }
+    );
+
+    window.updatePoints = async function (isAdd) {
+      if (!currentId) return alert("Scan a QR first.");
+      const change = parseInt(document.getElementById("points-change").value);
+      if (isNaN(change)) return alert("Enter a valid number.");
+
+      const ref = doc(db, "participants", currentId);
+      const snap = await getDoc(ref);
+      if (!snap.exists()) return alert("Participant not found.");
+
+      const current = snap.data().points || 0;
+      const updated = isAdd ? current + change : current - change;
+
+      await updateDoc(ref, { points: updated });
+      pointsSpan.textContent = updated;
+    };
+
+    const leaderboardDiv = document.getElementById("leaderboard");
+
+    const q = query(collection(db, "participants"), orderBy("points", "desc"));
+    onSnapshot(q, (snapshot) => {
+      leaderboardDiv.innerHTML = "";
+      snapshot.forEach((docSnap, idx) => {
+        const d = docSnap.data();
+        leaderboardDiv.innerHTML += `<div>${idx + 1}. ${d.name || 'Unnamed'} - ${d.points} pts</div>`;
+      });
+    });
+  </script>
+</body>
+</html>
