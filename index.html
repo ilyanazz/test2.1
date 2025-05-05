@@ -73,7 +73,8 @@
       leaderboardDiv.innerHTML = "";
       snapshot.forEach((docSnap, idx) => {
         const d = docSnap.data();
-        leaderboardDiv.innerHTML += `<div>${idx + 1}. ${d.points} pts</div>`;
+        const id = docSnap.id;
+        leaderboardDiv.innerHTML += `<div>${idx + 1}. ID: ${id} - ${d.points} pts</div>`;
       });
     });
   </script>
