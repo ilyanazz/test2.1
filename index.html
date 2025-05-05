@@ -5,9 +5,13 @@
   <script src="https://unpkg.com/html5-qrcode"></script>
   <script type="module" src="firebase.js"></script>
   <style>
-    body { font-family: Arial; padding: 20px; }
-    #leaderboard div { margin-bottom: 5px; }
+    body { font-family: Arial, sans-serif; padding: 20px; }
     input { margin: 5px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+    th { background-color: #f2f2f2; }
+    tr:nth-child(even) { background-color: #f9f9f9; }
+    tr:hover { background-color: #e9e9e9; }
   </style>
 </head>
 <body>
@@ -20,7 +24,16 @@
   <button onclick="updatePoints(false)">Deduct</button>
 
   <h2>Leaderboard</h2>
-  <div id="leaderboard"></div>
+  <table id="leaderboard">
+    <thead>
+      <tr>
+        <th>Rank</th>
+        <th>ID</th>
+        <th>Points</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 
   <script type="module">
     import {
@@ -66,15 +79,20 @@
       pointsSpan.textContent = updated;
     };
 
-    const leaderboardDiv = document.getElementById("leaderboard");
+    const leaderboardTableBody = document.querySelector("#leaderboard tbody");
 
     const q = query(collection(db, "participants"), orderBy("points", "desc"));
     onSnapshot(q, (snapshot) => {
-      leaderboardDiv.innerHTML = "";
+      leaderboardTableBody.innerHTML = "";
       snapshot.forEach((docSnap, idx) => {
         const d = docSnap.data();
         const points = d.points || 0;
-        leaderboardDiv.innerHTML += `<div>${idx + 1}. ID: ${docSnap.id} — ${points} pts</div>`;
+        const row = `<tr>
+          <td>${idx + 1}</td>
+          <td>${docSnap.id}</td>
+          <td>${points}</td>
+        </tr>`;
+        leaderboardTableBody.innerHTML += row;
       });
     });
   </script>
