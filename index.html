@@ -14,7 +14,6 @@
   <h2>QR Scanner (Admin)</h2>
   <div id="qr-reader" style="width:300px;"></div>
   <p>Scanned ID: <span id="scanned-id"></span></p>
-  <p>Name: <span id="participant-name"></span></p>
   <p>Current Points: <span id="current-points">0</span></p>
   <input type="number" id="points-change" placeholder="Points to Add/Deduct" />
   <button onclick="updatePoints(true)">Add</button>
@@ -30,7 +29,6 @@
 
     let currentId = null;
     const idSpan = document.getElementById('scanned-id');
-    const nameSpan = document.getElementById('participant-name');
     const pointsSpan = document.getElementById('current-points');
 
     const qrScanner = new Html5Qrcode("qr-reader");
@@ -44,10 +42,8 @@
         const snap = await getDoc(docRef);
         if (snap.exists()) {
           const data = snap.data();
-          nameSpan.textContent = data.name || "Unnamed";
           pointsSpan.textContent = data.points || 0;
         } else {
-          nameSpan.textContent = "Not found";
           pointsSpan.textContent = "0";
         }
       },
@@ -77,7 +73,7 @@
       leaderboardDiv.innerHTML = "";
       snapshot.forEach((docSnap, idx) => {
         const d = docSnap.data();
-        leaderboardDiv.innerHTML += `<div>${idx + 1}. ${d.name || 'Unnamed'} - ${d.points} pts</div>`;
+        leaderboardDiv.innerHTML += `<div>${idx + 1}. ${d.points} pts</div>`;
       });
     });
   </script>
