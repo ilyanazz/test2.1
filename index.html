@@ -2,23 +2,25 @@
 <html>
 <head>
   <title>QR Points Admin</title>
-  <link rel="stylesheet" href="styles.css" />
   <script src="https://unpkg.com/html5-qrcode"></script>
   <script type="module" src="firebase.js"></script>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    #leaderboard div { margin-bottom: 5px; }
+    input { margin: 5px; }
+  </style>
 </head>
 <body>
-  <div class="overlay">
-    <h2>QR Scanner (Admin)</h2>
-    <div id="qr-reader" style="width:300px;"></div>
-    <p>Scanned ID: <span id="scanned-id"></span></p>
-    <p>Current Points: <span id="current-points">0</span></p>
-    <input type="number" id="points-change" placeholder="Points to Add/Deduct" />
-    <button onclick="updatePoints(true)">Add</button>
-    <button onclick="updatePoints(false)">Deduct</button>
+  <h2>QR Scanner (Admin)</h2>
+  <div id="qr-reader" style="width:300px;"></div>
+  <p>Scanned ID: <span id="scanned-id"></span></p>
+  <p>Current Points: <span id="current-points">0</span></p>
+  <input type="number" id="points-change" placeholder="Points to Add/Deduct" />
+  <button onclick="updatePoints(true)">Add</button>
+  <button onclick="updatePoints(false)">Deduct</button>
 
-    <h2>Leaderboard</h2>
-    <div id="leaderboard"></div>
-  </div>
+  <h2>Leaderboard</h2>
+  <div id="leaderboard"></div>
 
   <script type="module">
     import {
@@ -72,7 +74,7 @@
       snapshot.forEach((docSnap, idx) => {
         const d = docSnap.data();
         const points = d.points || 0;
-        leaderboardDiv.innerHTML += `<div>${idx + 1}. ID: ${docSnap.id} — ${points} pts</div>`;
+        leaderboardDiv.innerHTML += <div>${idx + 1}. ID: ${docSnap.id} — ${points} pts</div>;
       });
     });
   </script>
