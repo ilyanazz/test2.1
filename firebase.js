@@ -1,20 +1,20 @@
-// firebase.js
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-import {
-  getFirestore, doc, getDoc, updateDoc, onSnapshot, collection, query, orderBy
-} from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+window.updatePoints = async function (isAdd) {
+  if (!currentId) return alert("Scan a QR first.");
+  const change = parseInt(document.getElementById("points-change").value);
+  if (isNaN(change)) return alert("Enter a valid number.");
 
-const firebaseConfig = {
-  apiKey: "AIzaSyDaRLmnE2t8v_bXtm_r_RrnuMhtJBfomug",
-  authDomain: "test2-74b30.firebaseapp.com",
-  databaseURL: "https://test2-74b30-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "test2-74b30",
-  storageBucket: "test2-74b30.firebasestorage.app",
-  messagingSenderId: "776427276353",
-  appId: "1:776427276353:web:0c7285a031ff3271069ec0"
+  const ref = doc(db, "participants", currentId);
+  try {
+    const snap = await getDoc(ref);
+    if (!snap.exists()) return alert("Participant not found.");
+
+    const current = snap.data().points || 0;
+    const updated = isAdd ? current + change : current - change;
+
+    await updateDoc(ref, { points: updated });
+    pointsSpan.textContent = updated;
+  } catch (err) {
+    console.error("Firestore update failed:", err);
+    alert("Failed to update Firestore. See console for details.");
+  }
 };
-  
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-export { db, doc, getDoc, updateDoc, onSnapshot, collection, query, orderBy };
